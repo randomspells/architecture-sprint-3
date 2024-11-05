@@ -1,0 +1,57 @@
+@startuml container
+!define C4P https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/refs/heads/master/C4_Component.puml
+!includeurl C4P
+
+Person(user, "Пользователь", "Пользователь умного дома")
+
+Container(webApplication, "Web Application", "Приложение для управления умным домом")
+
+Container_Boundary(system, "Брокер сообщений") {
+Component(kafka, "Kafka", "Система обмена сообщениями")
+}
+
+Container(module, "Модуль", "Устройство, предоставляющее данные телеметрии с возможностью удаленного управления")
+Container(apiGateway, "API Gateway", "Управляет маршрутизацей запросов к микросервисам, реализует политику безопасности")
+
+Container_Boundary(managementService, "Сервис управления устройствами") {
+Component(heatComponent, "Компонент отопления", "Управляет системой отопления")
+ComponentDb(heatDB, "База данных", "БД сервиса\nотопления")
+Component(lightComponent, "Компонент освещения", "Управляет освещением")
+ComponentDb(lightDB, "База данных", "БД сервиса\nосвещения")
+Component(gateComponent, "Компонент управления воротами", "Управляет автоматическими воротами")
+ComponentDb(gateDB, "База данных", "БД сервиса\nуправления воротами")
+Component(cameraComponent, "Компонент видеонаблюдения", "Управляет видеонаблюдением")
+ComponentDb(cameraDB, "База данных", "БД сервиса\nвидеонаблюдения")
+}
+
+Container_Boundary(monitoringService, "Сервис мониторинга") {
+Component(monitoringComponent, "Компонент мониторинга", "Собирает данные от устройств, формирует логи, выгружает в хранилище")
+ComponentDb(monitoringDB, "База данных", "БД сервиса\nмониторинга")
+}
+
+Container_Boundary(userService, "Сервис управления пользователями") {
+Component(userComponent, "Компонент пользователей", "Управляет пользователями, правами доступа")
+ComponentDb(userDB, "База данных", "БД сервиса\nпользователей")
+}
+
+Rel(user, module, "Подлючает устройство")
+Rel(user, webApplication, "Управляет умным домом через интерфейс")
+Rel(webApplication, apiGateway, "Запрашивает данные телеметрии, обновляет настройки", "HTTP/HTTPS")
+Rel(apiGateway, webApplication, "Отображает обновленные данные", "HTTP/HTTPS")
+Rel(apiGateway, managementService, "Маршрутизация запросов", "HTTP/HTTPS")
+Rel(apiGateway, userService, "Маршрутизация запросов", "HTTP/HTTPS")
+Rel(managementService, kafka, "Подписывается на изменения")
+Rel(kafka, managementService, "Отправляет события", "JSON")
+Rel(monitoringService, kafka, "Подписывается на изменения")
+Rel(kafka, monitoringService, "Отправляет события", "JSON")
+Rel(userService, kafka, "Подписывается на изменения")
+Rel(kafka, userService, "Отправляет события", "JSON")
+Rel(module, kafka, "Отправляет события (?)", "HTTP")
+Rel(heatComponent, heatDB, "Работа с данными")
+Rel(lightComponent, lightDB, "Работа с данными")
+Rel(gateComponent, gateDB, "Работа с данными")
+Rel(cameraComponent, cameraDB, "Работа с данными")
+Rel(monitoringComponent, monitoringDB, "Работа с данными")
+Rel(userComponent, userDB, "Работа с данными")
+@enduml
+

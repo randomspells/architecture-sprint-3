@@ -1,5 +1,6 @@
 @startuml context
-!include C4_Context.puml
+!define C4P https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/refs/heads/master/C4_Context.puml
+!includeurl C4P
 
 Person(user, "Пользователь", "Пользователь умного дома")
 System_Ext(module, "Система отопления", "Установленные датчики и реле умного дома")
